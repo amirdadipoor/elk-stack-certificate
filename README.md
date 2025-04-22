@@ -86,3 +86,116 @@ openssl pkcs12 -export -inkey /path/to/rootCA.key -in /path/to/new/rootCA.crt -o
 ```shell
 openssl pkcs12 -in /path/to/new/elastic-stack-ca.p12 -nokeys | openssl x509 -noout -enddate
 ```
+
+## Reissue Node/HTTP/Client Certs
+
+🛠️ Step-by-Step: Reissue Certs Using `instance.yml` + `New CA` + `elasticsearch-certutil` 
+
+📁 Example instance.yml
+Here’s what your instance.yml might look like:
+
+> ⚠️ NOTE 
+> 
+> Do this method for create both http and transport layer cert bases of this example
+
+```yaml
+instances:
+  - name: es-node-1
+    dns:
+      - es-node-1.example.com
+    ip:
+      - 192.168.1.10
+```
+
+#
+
+**✅ Step 1: Place your CA cert & key (or .p12) in one folder**
+You must have either:
+* `ca-cert.pem` and `ca.key` (PEM format), or
+* `elastic-stack-ca.p12` (PKCS#12 bundle)
+
+#
+
+**✅ Step 2: Run the command to generate signed certs**
+
+```
+# If you use .p12 bundle:
+
+elasticsearch-certutil cert --silent -in /path/to/instances.yml --out /path/to/output/elastic-certificates.zip --pass `password` ./path/to/elastic-stack-ca.p12  --ca-pass `password`
+
+# If you use PEM files:
+
+elasticsearch-certutil cert \
+  --ca-cert ca-cert.pem \
+  --ca-key ca.key \
+  --in instance.yml \
+  --out certs.zip \
+  --pem
+
+```
+After this step you have two file `http-cert.zip` and `transport-cert.zip`
+
+#
+
+**✅ Step 3: Unzip the output and distribute the certs**
+
+```shell
+unzip http-cert.zip -d ./
+unzip transport-cert.zip -d ./
+```
+
+also we can check Certificates  expire date
+
+```shell
+openssl pkcs12 -in /path/to/transport-cert.p12 -nokeys | openssl x509 -noout -enddate
+openssl pkcs12 -in /path/to/http-cert.p12 -nokeys | openssl x509 -noout -enddate
+```
+
+Then Extract certificate & Key & chain file of http cert file for kibana 
+
+```shell
+
+openssl pkcs12 -in /path/to/http-cert.p12 -password pass:`password` -nocerts -nodes > /path/to/ext-cert/client.key
+openssl pkcs12 -in /path/to/http-cert.p12 -password pass:`password` -clcerts -nokeys > /path/to/ext-cert/client.cer
+openssl pkcs12 -in /path/to/http-cert.p12 -password pass:`password` -clcerts -nokeys -chain > /path/to/ext-cert/client-ca.cer
+```
+
+after done process we talk about this commands 
+
+**✅ Step 4: replace new certificate files into elasticsearch | Kibana | logstash**
+
+```shell
+cd /path/to/elasticsearch/
+ls -ltrh
+cp /path/to/new/transport-cert/transport-cert.p12 /path/to/etc/elasticsearch/
+cp /path/to/http-cert/http-cert.p12 /path/to/elasticsearch/http-cert.p12
+chown elasticsearch:elasticsearch ./transport-cert.p12
+chown elasticsearch:elasticsearch ./http-cert.p12
+chmod 400 ./transport-cert.p12
+chmod 400 ./http-cert.p12
+cd /etc/kibana/
+ls -ltrh
+cp ./rootCA.crt /etc/kibana/
+ls -ltrh
+openssl x509 -in rootCA.crt -noout -dates
+chmod 755 /etc/kibana/rootCA.crt
+ls -ltrh
+cd /etc/kibana/certs
+rm *
+cp output/node1/ext-cert/client-ca.cer /etc/kibana/certs/
+cp output/node1/ext-cert/client.cer /etc/kibana/certs/
+cp output/node1/ext-cert/client.key /etc/kibana/certs/
+cp ./rootCA.crt ./output/logstash/client-ca.cer
+scp client-ca.cer root@logstash-machine-ip:/etc/logstash/certs/
+scp client-ca.cer root@logstash-machine-ip:/etc/logstash/certs/
+openssl x509 -in /etc/logstash/certs/client-ca.cer -noout -dates
+
+
+service elasticsearch restart
+service cerebro restart
+service kibana restart
+service logstash restart
+
+curl -XGET --insecure --user es-user 'https://es-machine-ip-or-domain:9200/_cat/indices' | grep red | wc -l
+
+```
