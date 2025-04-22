@@ -61,7 +61,7 @@ openssl req -x509 -new -nodes -key /path/to/rootCA.key -sha256 -days 1825 -out /
 ```
 You can use -days as needed (e.g., 3650 = 10 years).
 
-> :red_exclamation_mark: Note
+> ⚠️ Note
 > 
 > also you can verify expireation date of new root Ca Certificate File
 
