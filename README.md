@@ -7,3 +7,10 @@ Updating the certificates for your Elasticsearch cluster is a critical maintenan
 
 In the first step, we need to check how much validity remains on our current certificate. We will use the following command for this purpose. Please note that all our processes are based on certificates in the `.p12` format. At this stage, all we need is the current SSL certificate file and its password.
 
+> :warning: NOTE
+> 
+> Before starting, please review the documentation related to securing your Elasticsearch cluster and create a backup of your ELK stack configurations
+
+```shell
+openssl pkcs12 -in /etc/elasticsearch/elastic-certificates.p12 -nodes  | openssl x509 -noout -enddate
+```
