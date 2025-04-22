@@ -9,6 +9,8 @@ Befor Start please read full documentation of [Scuring Elasticserch Cluster](htt
 
 In the first step, we need to check how much validity remains on our current certificate. We will use the following command for this purpose. Please note that all our processes are based on certificates in the `.p12` format. At this stage, all we need is the current SSL certificate file and its password.
 
+#
+
 > :warning: NOTE
 > 
 > Before starting, please review the documentation related to securing your Elasticsearch cluster and create a backup of your ELK stack configurations
@@ -35,7 +37,7 @@ If your Certificate Authority (CA) is about to expire, you can still use its pri
 
 :toolbox: Step-by-Step Guide (Using `openssl` and `elasticsearch-certutil`)
 
-🔓 1.Extract CA key and Cert From the `.p12`
+**🔓 1.Extract CA key and Cert From the `.p12`**
 
 ```shell
 #  Extract the CA private key
@@ -47,4 +49,5 @@ openssl pkcs12 -in /path/to/elastic-stack-ca.p12 -clcerts -nokeys -out ca.crt
 You'll be prompted for the .p12 password.
 
 #
+
 
