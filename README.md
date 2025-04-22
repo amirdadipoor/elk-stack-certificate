@@ -43,7 +43,7 @@ If your Certificate Authority (CA) is about to expire, you can still use its pri
 
 ```shell
 #  Extract the CA private key
-openssl pkcs12 -in /path/to/elastic-stack-ca.p12 -nocerts -out ca.key -nodes
+openssl pkcs12 -in /path/to/elastic-stack-ca.p12 -nocerts -out rootCA.key -nodes
 
 # Extract the CA certificate
 openssl pkcs12 -in /path/to/elastic-stack-ca.p12 -clcerts -nokeys -out ca.crt
@@ -52,4 +52,29 @@ You'll be prompted for the .p12 password.
 
 #
 
+**🔄 2. Re-issue the CA Certificate with Extended Validity**
 
+Now re-use the extracted `ca.key` to issue a new CA cert (valid for e.g., 5 more years):
+
+```shell
+openssl req -x509 -new -nodes -key /path/to/rootCA.key -sha256 -days 1825 -out /path/to/new/rootCA.crt -subj "/CN=Elastic Stack CA"
+```
+You can use -days as needed (e.g., 3650 = 10 years).
+
+> :red_exclamation_mark: Note
+> 
+> also you can verify expireation date of new root Ca Certificate File
+
+```shell
+openssl x509 -in /path/to/new/rootCA.crt -noout -dates
+```
+
+#
+
+**🏗 3. (Optional) Rebuild a New .p12 if You Need to Repackage It**
+
+If you want to repackage the new cert + existing key into a new `.p12`:
+
+```shell
+openssl pkcs12 -export -inkey /path/to/rootCA.key -in /path/to/new/rootCA.crt -out /path/to/new/elastic-stack-ca.p12 -name "elastic-stack-ca"
+```
