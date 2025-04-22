@@ -25,7 +25,7 @@ openssl pkcs12 -in /path/to/elasticsearch/elastic-certificates.p12 -nodes  | ope
 GET _ssl/certificates
 ```
 
- You can also use the following commands for Kibana to find the certificate's expiration time.
+You can also use the following commands for Kibana to find the certificate's expiration time.
  
 ```shell
 openssl x509 -in /path/to/kibana/certs/certificate.cer.pem -noout -enddate
@@ -34,6 +34,8 @@ openssl x509 -in /path/to/kibana/certs/rootCA-certificate.cer.pem -noout -enddat
 this certificates used for transport layer between nodes and http layer 
 
 If your Certificate Authority (CA) is about to expire, you can still use its private key file to generate a new CA certificate. In this case, this approach will be used. (Keeping Same)
+
+#
 
 :toolbox: Step-by-Step Guide (Using `openssl` and `elasticsearch-certutil`)
 
