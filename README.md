@@ -150,6 +150,9 @@ also we can check Certificates  expire date
 openssl pkcs12 -in /path/to/transport-cert.p12 -nokeys | openssl x509 -noout -enddate
 openssl pkcs12 -in /path/to/http-cert.p12 -nokeys | openssl x509 -noout -enddate
 ```
+You'll be prompted for the .p12 password.
+
+#
 
 Then Extract certificate & Key & chain file of http cert file for kibana 
 
@@ -161,6 +164,8 @@ openssl pkcs12 -in /path/to/http-cert.p12 -password pass:`password` -clcerts -no
 ```
 
 after done process we talk about this commands 
+
+#
 
 **✅ Step 4: replace new certificate files into elasticsearch | Kibana | logstash**
 
