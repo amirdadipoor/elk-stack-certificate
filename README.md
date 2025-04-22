@@ -78,3 +78,11 @@ If you want to repackage the new cert + existing key into a new `.p12`:
 ```shell
 openssl pkcs12 -export -inkey /path/to/rootCA.key -in /path/to/new/rootCA.crt -out /path/to/new/elastic-stack-ca.p12 -name "elastic-stack-ca"
 ```
+
+> ⚠️ Note
+>
+> Similar to the previous case, we can also check the validity period of the new SSL certificate here as follows:
+
+```shell
+openssl pkcs12 -in /path/to/new/elastic-stack-ca.p12 -nokeys | openssl x509 -noout -enddate
+```
