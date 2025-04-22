@@ -35,7 +35,7 @@ If your Certificate Authority (CA) is about to expire, you can still use its pri
 
 :toolbox: Step-by-Step Guide (Using `openssl` and `elasticsearch-certutil`)
 
-:locked_with_key: 1.Extract CA key and Cert From the `.p12`
+🔓 1.Extract CA key and Cert From the `.p12`
 
 ```shell
 #  Extract the CA private key
