@@ -205,6 +205,11 @@ curl -XGET --insecure --user es-user 'https://es-machine-ip-or-domain:9200/_cat/
 
 ```
 
+> ⚠️ NOTE | optinal
+>
+> Before Restarting Elasticsearch add following lines to your elastic cluster congiguration file
+>
+> Don't Use them in production mode
 
 ```shell
 xpack.security.transport.ssl.verification_mode: none
