@@ -191,8 +191,8 @@ cp output/node1/ext-cert/client-ca.cer /etc/kibana/certs/
 cp output/node1/ext-cert/client.cer /etc/kibana/certs/
 cp output/node1/ext-cert/client.key /etc/kibana/certs/
 cp ./rootCA.crt ./output/logstash/client-ca.cer
-scp client-ca.cer root@logstash-machine-ip:/etc/logstash/certs/
-scp client-ca.cer root@logstash-machine-ip:/etc/logstash/certs/
+scp client-ca.cer user@logstash-machine-ip:/etc/logstash/certs/
+scp client-ca.cer user@logstash-machine-ip:/etc/logstash/certs/
 openssl x509 -in /etc/logstash/certs/client-ca.cer -noout -dates
 
 
@@ -202,5 +202,21 @@ service kibana restart
 service logstash restart
 
 curl -XGET --insecure --user es-user 'https://es-machine-ip-or-domain:9200/_cat/indices' | grep red | wc -l
+
+```
+
+
+```shell
+xpack.security.transport.ssl.verification_mode: none
+xpack.security.http.ssl.verification_mode: none
+```
+
+>
+> ⚠️ NOTE
+> Export the Elasticsearch HTTPS Certificate for logstash
+> Run this on the Logstash server:
+
+```shell
+echo | openssl s_client -connect es-machine-ip-or-domain:9200 -showcerts | openssl x509 -outform PEM > client-ca.pem 
 
 ```
